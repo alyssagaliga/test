@@ -34,7 +34,19 @@ const LoginForm = ({ onLogin }) => { //
         body: JSON.stringify({ username, password }), //
       });
 
-      const data = await response.json(); //
+      // Be tolerant of non-JSON error bodies
+      const contentType = response.headers.get('content-type') || '';
+      let data = null;
+      let textBody = '';
+      try {
+        if (contentType.includes('application/json')) {
+          data = await response.json(); //
+        } else {
+          textBody = await response.text();
+        }
+      } catch (_) {
+        // ignore parse errors; we'll use status text
+      }
 
       if (response.ok) { //
         setMessageBox({ //
@@ -57,11 +69,13 @@ const LoginForm = ({ onLogin }) => { //
         }, 1500);
 
       } else {
-        setError(data.message || 'Invalid username or password'); //
+        const fallbackMsg = `HTTP ${response.status} ${response.statusText}`;
+        const message = (data && data.message) || textBody || fallbackMsg;
+        setError(message); //
         setMessageBox({ //
           isVisible: true, //
           type: 'error', //
-          message: data.message || 'Invalid username or password', //
+          message: message, //
         });
       }
     } catch (err) {
