@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { apiUrl } from '../config';
 import { FaBan, FaPrint, FaMoneyBillWave, FaBarcode, FaBoxOpen, FaShoppingCart } from 'react-icons/fa';
 
 // Helper functions lifted to top-level for stability in hooks
@@ -37,7 +38,7 @@ export default function InventoryForm() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/products');
+        const res = await fetch(apiUrl('/products'));
         const data = await res.json();
         setProducts(data);
         const initialQuantities = data.reduce((acc, product) => {
@@ -354,7 +355,7 @@ export default function InventoryForm() {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/api/receipts', {
+      const res = await fetch(apiUrl('/receipts'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
