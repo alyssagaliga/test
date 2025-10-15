@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FaSave, FaBan, FaSearch, FaPrint, FaMoneyBillWave, FaBarcode, FaBoxOpen, FaDollarSign, FaClipboardList, FaShoppingCart } from 'react-icons/fa';
+import { FaBan, FaPrint, FaMoneyBillWave, FaBarcode, FaBoxOpen, FaShoppingCart } from 'react-icons/fa';
 
 export default function InventoryForm() {
   const [cart, setCart] = useState([]);
@@ -39,14 +39,14 @@ export default function InventoryForm() {
     }
   }, [isScanMode]);
 
-  const getFullProductName = (product) => {
+  const getFullProductName = useCallback((product) => {
     const supplierName = product.supplierName || '';
     const brandName = product.brandName || '';
     const medicineName = product.medicineName || '';
     const form = product.form || '';
     const strength = product.strength || '';
     return `${supplierName} (${brandName}) - ${medicineName}, ${form}, ${strength}`;
-  };
+  }, []);
 
   const handleProductQuantityChange = (productId, value) => {
     const newQuantity = parseInt(value) || 1;
@@ -56,7 +56,7 @@ export default function InventoryForm() {
     }));
   };
 
-  const handleAddToCart = (productToAdd, quantity) => {
+  const handleAddToCart = useCallback((productToAdd, quantity) => {
     if (!productToAdd) return alert('Select a product first');
     if (quantity < 1) return alert('Quantity must be at least 1');
 
@@ -69,22 +69,23 @@ export default function InventoryForm() {
       return;
     }
 
-    const existingIndex = cart.findIndex(item => item.id === productToAdd.id);
-    let updatedCart = [...cart];
+    setCart(prevCart => {
+      const existingIndex = prevCart.findIndex(item => item.id === productToAdd.id);
+      const updatedCart = [...prevCart];
+      const productCartEntry = {
+        id: productToAdd.id,
+        name: getFullProductName(productToAdd),
+        price: parseFloat(productToAdd.price),
+        quantity: quantity
+      };
 
-    const productCartEntry = {
-      id: productToAdd.id,
-      name: getFullProductName(productToAdd),
-      price: parseFloat(productToAdd.price),
-      quantity: quantity
-    };
-
-    if (existingIndex >= 0) {
-      updatedCart[existingIndex].quantity += quantity;
-    } else {
-      updatedCart.push(productCartEntry);
-    }
-    setCart(updatedCart);
+      if (existingIndex >= 0) {
+        updatedCart[existingIndex].quantity += quantity;
+      } else {
+        updatedCart.push(productCartEntry);
+      }
+      return updatedCart;
+    });
 
     setProducts(prevProducts =>
       prevProducts.map(p =>
@@ -98,7 +99,7 @@ export default function InventoryForm() {
       ...prev,
       [productToAdd.id]: 1
     }));
-  };
+  }, [getFullProductName]);
 
   const handleScanProduct = (productId) => {
     const product = products.find(p => (p.medicineId || p.id).toString() === productId.toString());
@@ -173,7 +174,7 @@ export default function InventoryForm() {
   const vatableSale = netPay / (1 + vatRate);
   const vatAmount = netPay - vatableSale;
 
-  const formatDateTimeForMySQL = (dateString) => {
+  const formatDateTimeForMySQL = useCallback((dateString) => {
     const date = new Date(dateString);
     const year = String(date.getFullYear());
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -182,7 +183,7 @@ export default function InventoryForm() {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
+  }, []);
 
   const handlePrint = useCallback(async () => {
     const currentReceipt = {
