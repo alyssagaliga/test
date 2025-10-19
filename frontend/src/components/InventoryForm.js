@@ -195,37 +195,6 @@ export default function InventoryForm() {
     setShowCartModal(false);
   };
 
-  const handleOpenReceiptModal = useCallback(() => {
-    if (cart.length === 0) {
-      alert('Cart is empty. Nothing to print.');
-      return;
-    }
-    
-    if (parseFloat(cashGiven) < netPay) {
-      alert('Cash given is less than the net payable amount.');
-      return;
-    }
-
-    const receiptData = {
-      customer: customer,
-      cart: cart,
-      totalPrice: totalPrice,
-      discountPercent: effectiveDiscountPercent,
-      discountType: discountType,
-      discountAmount: discountAmount,
-      netPay: netPay,
-      cashGiven: parseFloat(cashGiven) || 0,
-      change: change,
-      paymentMethod: 'cash',
-      vatableSale: vatableSale,
-      vatAmount: vatAmount,
-      transaction_date: new Date().toISOString(),
-    };
-    
-    setCurrentReceipt(receiptData);
-    setShowReceiptModal(true);
-  }, [cart, customer, totalPrice, effectiveDiscountPercent, discountType, discountAmount, netPay, cashGiven, change, vatableSale, vatAmount]);
-
   const handleCloseReceiptModal = () => {
     setShowReceiptModal(false);
     setCurrentReceipt(null);
@@ -299,6 +268,37 @@ export default function InventoryForm() {
   const vatRate = 0.12;
   const vatableSale = netPay / (1 + vatRate);
   const vatAmount = netPay - vatableSale;
+
+  const handleOpenReceiptModal = useCallback(() => {
+    if (cart.length === 0) {
+      alert('Cart is empty. Nothing to print.');
+      return;
+    }
+    
+    if (parseFloat(cashGiven) < netPay) {
+      alert('Cash given is less than the net payable amount.');
+      return;
+    }
+
+    const receiptData = {
+      customer: customer,
+      cart: cart,
+      totalPrice: totalPrice,
+      discountPercent: effectiveDiscountPercent,
+      discountType: discountType,
+      discountAmount: discountAmount,
+      netPay: netPay,
+      cashGiven: parseFloat(cashGiven) || 0,
+      change: change,
+      paymentMethod: 'cash',
+      vatableSale: vatableSale,
+      vatAmount: vatAmount,
+      transaction_date: new Date().toISOString(),
+    };
+    
+    setCurrentReceipt(receiptData);
+    setShowReceiptModal(true);
+  }, [cart, customer, totalPrice, effectiveDiscountPercent, discountType, discountAmount, netPay, cashGiven, change, vatableSale, vatAmount]);
 
   const handlePrint = useCallback(() => {
     handleOpenReceiptModal();
