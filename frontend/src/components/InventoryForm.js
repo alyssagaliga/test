@@ -195,7 +195,7 @@ export default function InventoryForm() {
     setShowCartModal(false);
   };
 
-  const handleOpenReceiptModal = () => {
+  const handleOpenReceiptModal = useCallback(() => {
     if (cart.length === 0) {
       alert('Cart is empty. Nothing to print.');
       return;
@@ -224,7 +224,7 @@ export default function InventoryForm() {
     
     setCurrentReceipt(receiptData);
     setShowReceiptModal(true);
-  };
+  }, [cart, customer, totalPrice, effectiveDiscountPercent, discountType, discountAmount, netPay, cashGiven, change, vatableSale, vatAmount]);
 
   const handleCloseReceiptModal = () => {
     setShowReceiptModal(false);
@@ -302,7 +302,7 @@ export default function InventoryForm() {
 
   const handlePrint = useCallback(() => {
     handleOpenReceiptModal();
-  }, [cart, customer, totalPrice, effectiveDiscountPercent, discountType, discountAmount, netPay, cashGiven, change, vatableSale, vatAmount]);
+  }, [handleOpenReceiptModal]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
